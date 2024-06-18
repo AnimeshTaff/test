@@ -12,13 +12,17 @@ const makeShopifyRequest = (method, endpoint, body, res) => {
         },
         body: body ? JSON.stringify(body) : null
     };
+
+    console.log(`Making ${method} request to ${options.url}`);
     
     request(options, (error, response, body) => {
         if (error) {
+            console.error(`Error: ${error}`);
             res.status(500).send(error);
         } else {
             // Parse the body string into a JavaScript object
             let responseBody = JSON.parse(body);
+            console.log(`Response received with status code ${response.statusCode}`);
             res.status(response.statusCode).json(responseBody);
         }
     });
@@ -26,11 +30,13 @@ const makeShopifyRequest = (method, endpoint, body, res) => {
 
 // Fetch all products
 router.get("/", (req, res) => {
+    console.log("Fetching all products...");
     makeShopifyRequest('GET', 'products.json', null, res);
 });
 
 // Create product
 router.get("/create", (req, res) => {
+    console.log("Creating a new product...");
     const productData = {
         "product": {
             "title": "test new data 1",
@@ -56,6 +62,7 @@ router.get("/create", (req, res) => {
 
 // Update product
 router.get("/update", (req, res) => {
+    console.log("Updating a product...");
     const productId = '7324780560435'; // Use the correct product ID
     const productData = {
         "product": {
@@ -82,8 +89,11 @@ router.get("/update", (req, res) => {
 
 // Delete product
 router.get("/delete", (req, res) => {
+    console.log("Deleting a product...");
     const productId = '7324780560435'; // Use the correct product ID
     makeShopifyRequest('DELETE', `products/${productId}`, null, res);
 });
+
+console.log("File is working"); // This logs when the file is initially loaded
 
 module.exports = router;
