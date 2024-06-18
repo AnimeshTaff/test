@@ -1,12 +1,13 @@
 const express = require('express');
 const request = require('request');
 const router = express.Router();
-const { Url } = require('../config');
+const { Url } = require('../config'); // Assuming Url is correctly defined in config file
 
+// Function to make Shopify API requests
 const makeShopifyRequest = (method, endpoint, body, res) => {
     const options = {
         method,
-        url: body ? `${Url}/${endpoint}.json` : `${Url}/${endpoint}`,
+        url: `${Url}/${endpoint}.json`, // Always append '.json' for Shopify API requests
         headers: {
             'Content-Type': 'application/json'
         },
@@ -14,86 +15,51 @@ const makeShopifyRequest = (method, endpoint, body, res) => {
     };
 
     console.log(`Making ${method} request to ${options.url}`);
-    
-    request(options, (error, response, body) => {
+
+    request(options, (error, response, responseBody) => {
         if (error) {
             console.error(`Error: ${error}`);
             res.status(500).send(error);
         } else {
-            // Parse the body string into a JavaScript object
-            let responseBody = JSON.parse(body);
-            console.log(`Response received with status code ${response.statusCode}`);
-            res.status(response.statusCode).json(responseBody);
+            try {
+                // Parse the response body into a JavaScript object
+                let responseBodyObj = JSON.parse(responseBody);
+                console.log(`Response received with status code ${response.statusCode}`);
+                res.status(response.statusCode).json(responseBodyObj);
+            } catch (parseError) {
+                console.error(`Error parsing response body: ${parseError}`);
+                res.status(500).send(parseError);
+            }
         }
     });
 };
 
-// Fetch all products
-router.get("/", (req, res) => {
+// Route to fetch all products
+router.get("/products", (req, res) => {
     console.log("Fetching all products...");
-    makeShopifyRequest('GET', 'products.json', null, res);
+    makeShopifyRequest('GET', 'products', null, res);
 });
 
-// Create product
-router.get("/create", (req, res) => {
+// Route to create a product
+router.post("/products/create", (req, res) => {
     console.log("Creating a new product...");
-    const productData = {
-        "product": {
-            "title": "test new data 1",
-            "body_html": "<p> We are testing new data part 1 <p>",
-            "product_type": "test",
-            "variants": [
-                {
-                    "price": "300.00",
-                    "sku": null,
-                    "position": 1,
-                    "inventory_policy": "deny",
-                    "grams": 0,
-                    "weight": 0.0,
-                    "weight_unit": "kg",
-                    "inventory_quantity": 200,
-                    "old_inventory_quantity": 1
-                }
-            ]
-        }
-    };
+    const productData = req.body; // Assuming request body contains product data
     makeShopifyRequest('POST', 'products', productData, res);
 });
 
-// Update product
-router.get("/update", (req, res) => {
-    console.log("Updating a product...");
-    const productId = '7324780560435'; // Use the correct product ID
-    const productData = {
-        "product": {
-            "title": "test new data update",
-            "body_html": "<p> We are testing new data and here we running update query <p>",
-            "product_type": "test",
-            "variants": [
-                {
-                    "price": "300.00",
-                    "sku": null,
-                    "position": 1,
-                    "inventory_policy": "deny",
-                    "grams": 0,
-                    "weight": 0.0,
-                    "weight_unit": "kg",
-                    "inventory_quantity": 100,
-                    "old_inventory_quantity": 1
-                }
-            ]
-        }
-    };
+// Route to update a product
+router.put("/products/update/:productId", (req, res) => {
+    const productId = req.params.productId;
+    console.log(`Updating product with ID ${productId}...`);
+    const productData = req.body; // Assuming request body contains updated product data
     makeShopifyRequest('PUT', `products/${productId}`, productData, res);
 });
 
-// Delete product
-router.get("/delete", (req, res) => {
-    console.log("Deleting a product...");
-    const productId = '7324780560435'; // Use the correct product ID
+// Route to delete a product
+router.delete("/products/delete/:productId", (req, res) => {
+    const productId = req.params.productId;
+    console.log(`Deleting product with ID ${productId}...`);
     makeShopifyRequest('DELETE', `products/${productId}`, null, res);
 });
-
-console.log("File is working"); // This logs when the file is initially loaded
 
 module.exports = router;
