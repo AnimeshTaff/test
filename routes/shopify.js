@@ -44,7 +44,7 @@ router.get("/create", (req, res) => {
             ]
         }
     };
-    makeShopifyRequest('POST', '', productData, res);
+    makeShopifyRequest('POST', productData, res);
 });
 
 // Update product
