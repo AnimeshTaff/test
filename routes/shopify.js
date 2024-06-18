@@ -1,12 +1,12 @@
 const express = require('express');
 const request = require('request');
 const router = express.Router();
-const { baseUrl } = require('../config');
+const { Url } = require('../config');
 
 const makeShopifyRequest = (method, endpoint, body, res) => {
     const options = {
         method,
-        url: `${baseUrl}/${endpoint}.json`,
+        url: `${Url}/${endpoint}.json`,
         headers: {
             'Content-Type': 'application/json'
         },
