@@ -1,13 +1,13 @@
 const express = require('express');
 const request = require('request');
 const router = express.Router();
-const { Url } = require('../config'); // Assuming Url is correctly defined in config file
+const { baseUrl } = require('../config'); // Assuming Url is correctly defined in config file
 
 // Function to make Shopify API requests
 const makeShopifyRequest = (method, endpoint, body, res) => {
     const options = {
         method,
-        url: `${Url}/${endpoint}.json`, // Always append '.json' for Shopify API requests
+        url: `${baseUrl}/${endpoint}.json`, // Always append '.json' for Shopify API requests
         headers: {
             'Content-Type': 'application/json'
         },
