@@ -17,7 +17,9 @@ const makeShopifyRequest = (method, endpoint, body, res) => {
         if (error) {
             res.status(500).send(error);
         } else {
-            res.status(response.statusCode).send(body);
+            // Parse the body string into a JavaScript object
+            let responseBody = JSON.parse(body);
+            res.status(response.statusCode).json(responseBody);
         }
     });
 };
