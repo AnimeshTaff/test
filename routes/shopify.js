@@ -6,21 +6,26 @@ const { Url } = require('../config');
 const makeShopifyRequest = (method, endpoint, body, res) => {
     const options = {
         method,
-        url: `${Url}/${endpoint}.json`,
+        url: body ? `${Url}/${endpoint}.json` : `${Url}/${endpoint}`,
         headers: {
             'Content-Type': 'application/json'
         },
         body: body ? JSON.stringify(body) : null
     };
     
-    request(options, (error, response) => {
+    request(options, (error, response, body) => {
         if (error) {
             res.status(500).send(error);
         } else {
-            res.status(response.statusCode).send(response.body);
+            res.status(response.statusCode).send(body);
         }
     });
 };
+
+// Fetch all products
+router.get("/", (req, res) => {
+    makeShopifyRequest('GET', 'products.json', null, res);
+});
 
 // Create product
 router.get("/create", (req, res) => {
@@ -44,12 +49,12 @@ router.get("/create", (req, res) => {
             ]
         }
     };
-    makeShopifyRequest('POST', productData, res);
+    makeShopifyRequest('POST', 'products', productData, res);
 });
 
 // Update product
 router.get("/update", (req, res) => {
-    const productid = '7324780560435'; // Use the correct product ID
+    const productId = '7324780560435'; // Use the correct product ID
     const productData = {
         "product": {
             "title": "test new data update",
@@ -70,13 +75,13 @@ router.get("/update", (req, res) => {
             ]
         }
     };
-    makeShopifyRequest('PUT', productid, productData, res);
+    makeShopifyRequest('PUT', `products/${productId}`, productData, res);
 });
 
 // Delete product
 router.get("/delete", (req, res) => {
-    const productid = '7324780560435'; // Use the correct product ID
-    makeShopifyRequest('DELETE', productid, null, res);
+    const productId = '7324780560435'; // Use the correct product ID
+    makeShopifyRequest('DELETE', `products/${productId}`, null, res);
 });
 
 module.exports = router;
